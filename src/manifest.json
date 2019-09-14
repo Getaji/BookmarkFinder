@@ -1,15 +1,18 @@
 {
-  "name": "Chrome拡張の雛形です",
-  "description": "これから作るものにあわせて変更してください。",
-  "version": "0.1",
+  "name": "Bookmark Finder",
+  "description": "ブックマークを絞り込み検索する拡張機能です。",
+  "version": "0.1.0",
   "manifest_version": 2,
+  "browser_action": {
+    "default_popup": "popup/index.html"
+  },
   "content_scripts": [{
-    "matches": ["https://github.com/waterada/chrome-ex-template/*"],
+    "matches": ["<all_urls>"],
     "js": ["jquery-2.2.0.min.js", "ChEx.js", "content_script.js"]
   }],
   "options_page": "options.html",
   "permissions": [
-    "https://github.com/waterada/chrome-ex-template/*",
+    "<all_urls>",
     "storage"
   ]
 }
