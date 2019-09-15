@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <input
-      class="inputSearchQuery"
+      id="inputSearchQuery"
       ref="inputSearchQuery"
       v-model="searchQuery"
       title="入力してEnterで検索"
@@ -146,7 +146,7 @@ body {
   flex-direction: column;
 }
 
-.inputSearchQuery {
+#inputSearchQuery {
   margin-bottom: 4px;
 }
 
