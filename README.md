@@ -1,22 +1,31 @@
-Chrome拡張の雛形
+Chrome Extension: Bookmark Finder
 ========================
 
-概要
------
+# About
+Bookmark Finderはブックマークを検索するシンプルな拡張機能です。
+Bookmark Finder is a simple extension that searches bookmarks.
 
-これをダウンロードかcloneして、書き換えてください。
+# Install
+Chromeの拡張機能ページを開き、srcフォルダをドラッグ＆ドロップしてください。
+Open the Chrome extension page and drag and drop the src folder.
 
+# Usage
+アイコンをクリックすると検索ボックスが開くので、検索ワードを入力してEnterを押してください。タイトルとURLを対象に検索した結果が表示されます。
+Click the icon to open the search box. Enter the search word and press Enter. Search results for title and URL are displayed.
 
-各種ドキュメント/サンプルページ
------------------------------------
+クリックすると現在のタブで開きます。Ctrlキーを押しながらクリックすると新しいタブで開きます。Ctrl + Shiftキーを押しながらクリックすると非アクティブな新しいタブで開きます。
+Click to open in current tab. Clicking while holding down the Ctrl key opens in a new tab. Ctrl + Shift-click to open in a new inactive tab.
 
-- [使い方](http://qiita.com/waterada/private/f8a53677a46c131a3734)
-- [サンプルページ](https://waterada.github.io/chrome-ex-template/test/example.html)
-- [ChEx.js のドキュメント](ChEx-doc.md)
-- [単体テスト](https://waterada.github.io/chrome-ex-template/test/test.html)
+Ctrl + 矢印キーで項目を選択し、Enterで開くこともできます。新しいタブで開く動作もクリックと同様です。
+You can also select items with Ctrl + arrow keys and open them with Enter. Opening in a new tab is similar to clicking.
 
+# To Do
+- 矢印キーでの項目選択時に入力ボックスのカーソルを動かないようにする
+- ブックマークを開いたらポップアップを閉じるなどの設定画面を追加する
+- オプションで履歴も検索できるようにする
+- AND/OR/NOT検索ができるようにする
+- フォルダ階層の表示・検索対象化
+- 検索対象の値を指定可能にする(例 url:twitter.com)
 
-License
------------------------------------
-
-MIT
+# License
+<a rel="license" href="http://creativecommons.org/licenses/by/3.0/"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/3.0/88x31.png" /></a><br />この 作品 は <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">クリエイティブ・コモンズ 表示 3.0 非移植 ライセンス</a>の下に提供されています。
