@@ -135,7 +135,6 @@ export default {
 <style>
 body {
   width: 400px;
-  min-height: 100px;
 }
 
 #app {
