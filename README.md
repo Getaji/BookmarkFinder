@@ -30,7 +30,7 @@ You can also select items with Ctrl + arrow keys and open them with Enter. Openi
 # For Developer
 めんどくさいので日本語で書いていいですか？　書きますね。
 
-改造したい人向け。ポップアップはpopup-devフォルダをルートとしてvue-cliで開発しています。変更したら`npm run build`するとコンパイルされたものが`プロジェクトルート/src/popup`に吐き出されます。
+改造したい人向け。ポップアップはpopup-devフォルダをルートとしてvue-cliで開発しています。変更したら`npm run build`するとコンパイルされたものが`プロジェクトルート/src/popup`に吐き出されます。v0.2.0からはバージョンアップしたタイミングでビルドしたものをコミットするようにしました。
 
 Pull Requestは消極的に受け付けています。ライセンスを守っていただければ先に書いたとおり改造は自由ですが、もしかしたら取り込むかもしれません。
 
