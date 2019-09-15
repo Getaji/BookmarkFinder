@@ -4,7 +4,7 @@
       id="inputSearchQuery"
       ref="inputSearchQuery"
       v-model="searchQuery"
-      title="入力してEnterで検索"
+      placeholder="入力してEnterで検索"
       @keyup="onKeyupInputSearchQuery"
       @keyup.enter="find($event)"
       @keyup.up="shiftSelectedItem(-1, $event)"
