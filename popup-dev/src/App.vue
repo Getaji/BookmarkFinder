@@ -7,9 +7,8 @@
       placeholder="入力してEnterで検索"
       @keyup="onKeyupInputSearchQuery"
       @keyup.enter="enterInputSearchQuery"
-      @keyup.up="shiftSelectedItem(-1, $event)"
-      @keyup.down="shiftSelectedItem(1, $event)"
-      @keydown="onKeydown"
+      @keydown.up="shiftSelectedItem(-1, $event)"
+      @keydown.down="shiftSelectedItem(1, $event)"
       @change="selectedBookmarkIndex = -1"
     >
     <div id="bookmarkList">
