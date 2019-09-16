@@ -20,7 +20,6 @@ Ctrl + 矢印キーで項目を選択し、Enterで開くこともできます�
 You can also select items with Ctrl + arrow keys and open them with Enter. Opening in a new tab is similar to clicking.
 
 # To Do
-- 矢印キーでの項目選択時に入力ボックスのカーソルを動かないようにする
 - ブックマークを開いたらポップアップを閉じるなどの設定画面を追加する
 - オプションで履歴も検索できるようにする
 - AND/OR/NOT検索ができるようにする

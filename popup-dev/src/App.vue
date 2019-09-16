@@ -6,9 +6,10 @@
       v-model="searchQuery"
       placeholder="入力してEnterで検索"
       @keyup="onKeyupInputSearchQuery"
-      @keyup.enter="find($event)"
+      @keyup.enter="enterInputSearchQuery"
       @keyup.up="shiftSelectedItem(-1, $event)"
       @keyup.down="shiftSelectedItem(1, $event)"
+      @keydown="onKeydown"
       @change="selectedBookmarkIndex = -1"
     >
     <div id="bookmarkList">
@@ -94,7 +95,7 @@ export default {
     onKeyupInputSearchQuery() {
       //this.state
     },
-    find(ev) {
+    enterInputSearchQuery(ev) {
       if (this.selectedBookmarkIndex > -1) {
         openURL(this.bookmarks[this.selectedBookmarkIndex].url, ev.ctrlKey, !ev.shiftKey)
         return
@@ -117,16 +118,23 @@ export default {
     },
     shiftSelectedItem(value, ev) {
       if (!ev.ctrlKey) {
-        return
+        return true
       }
       const shifted = this.selectedBookmarkIndex + value
       if (shifted > -1 && this.bookmarks.length > shifted) {
         this.selectedBookmarkIndex = shifted
       }
       ev.preventDefault()
+      return false
     },
     onOpenUrlByBkm(ev) {
       openURL(ev.url, ev.newTab, ev.active)
+    },
+    onKeydown(ev) {
+      if (ev.ctrlKey && (ev.key === 'ArrowUp' || ev.key === 'ArrowDown')) {
+        ev.preventDefault()
+        return false
+      }
     },
   },
 }
