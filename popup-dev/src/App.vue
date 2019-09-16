@@ -57,8 +57,17 @@ function flatBookmarksTree(tree, size) {
 }
 
 function findBookmarks(query) {
+  if (!query || query.length === 0) {
+    return []
+  }
+  const queries = query.split(/[　 ㅤ]+/g).filter(q => q.length > 0)
+  if (queries.length === 0) {
+    return []
+  }
   return bookmarks.filter(bkm => {
-    return bkm.title.includes(query) || bkm.url.includes(query)
+    return queries.every(q => {
+      return bkm.title.includes(q) || bkm.url.includes(q)
+    })
   })
 }
 
@@ -94,12 +103,10 @@ export default {
     onKeyupInputSearchQuery() {
       //this.state
     },
-    enterInputSearchQuery(ev) {
-      if (this.selectedBookmarkIndex > -1) {
-        openURL(this.bookmarks[this.selectedBookmarkIndex].url, ev.ctrlKey, !ev.shiftKey)
-        return
+    find(q) {
+      if (!q) {
+        q = this.searchQuery
       }
-      const q = this.searchQuery
       if (q.length === 0) {
         this.bookmarks = []
         this.state = 'empty'
@@ -108,6 +115,13 @@ export default {
       this.selectedBookmarkIndex = -1
       this.bookmarks = findBookmarks(q)
       this.state = 'result'
+    },
+    enterInputSearchQuery(ev) {
+      if (this.selectedBookmarkIndex > -1) {
+        openURL(this.bookmarks[this.selectedBookmarkIndex].url, ev.ctrlKey, !ev.shiftKey)
+        return
+      }
+      this.find()
     },
     loadBookmarks() {
       chrome.bookmarks.getTree(nodes => {
