@@ -11,21 +11,31 @@
       @keydown.down="shiftSelectedItem(1, $event)"
       @change="selectedBookmarkIndex = -1"
     >
-    <div id="selectSearchOrAnd">
-      <input
-        type="radio"
-        id="selectSearchOrAnd-AND"
-        value="AND"
-        v-model="selectSearchOrAnd"
-      >
-      <label for="selectSearchOrAnd-AND">AND</label>
-      <input
-        type="radio"
-        id="selectSearchOrAnd-OR"
-        value="OR"
-        v-model="selectSearchOrAnd"
-      >
-      <label for="selectSearchOrAnd-OR">OR</label>
+    <div id="searchOptions">
+      <div id="selectSearchOrAnd">
+        <input
+          type="radio"
+          id="selectSearchOrAnd-AND"
+          value="AND"
+          v-model="selectSearchOrAnd"
+        >
+        <label for="selectSearchOrAnd-AND">AND</label>
+        <input
+          type="radio"
+          id="selectSearchOrAnd-OR"
+          value="OR"
+          v-model="selectSearchOrAnd"
+        >
+        <label for="selectSearchOrAnd-OR">OR</label>
+      </div>
+      <div>
+        <input
+          type="checkbox"
+          id="checkboxUseRegExpSearch"
+          v-model="useRegExp"
+        >
+        <label for="checkboxUseRegExpSearch">正規表現を使用</label>
+      </div>
     </div>
     <div id="bookmarkList">
       <BookmarkItem
@@ -180,6 +190,7 @@ export default {
       bookmarks: [],
       searchQuery: '',
       selectSearchOrAnd: 'AND',
+      useRegExp: false,
       selectedBookmarkIndex: -1,
       state: 'ready',
     }
@@ -198,7 +209,7 @@ export default {
         q = this.searchQuery
       }
       this.selectedBookmarkIndex = -1
-      this.bookmarks = findBookmarks(q, this.selectSearchOrAnd)
+      this.bookmarks = findBookmarks(q, this.selectSearchOrAnd, this.useRegExp)
       this.state = this.bookmarks.length > 0 ? 'result' : 'empty'
     },
     enterInputSearchQuery(ev) {
@@ -253,6 +264,14 @@ body {
 
 #inputSearchQuery {
   margin-bottom: 4px;
+}
+
+#searchOptions {
+  display: flex;
+}
+
+#searchOptions>* {
+  margin-right: 5px;
 }
 
 #bookmarkListNotice {
