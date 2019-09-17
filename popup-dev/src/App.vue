@@ -78,6 +78,57 @@ function flatBookmarksTree(tree, size) {
   return list
 }
 
+const QUERY_MATCHER = {
+}
+
+const BOOKMARK_ATTRIBUTES = ['title', 'url']
+function getQueryAttrMatcher(attr, value, isNot, useRegExp) {
+  if (BOOKMARK_ATTRIBUTES.includes(attr)) {
+    if (useRegExp) {
+      const pattern = new RegExp(value, 'i')
+      return item => isNot ^ item[attr].match(pattern)
+    }
+    return item => isNot ^ item[attr].includes(value)
+  }
+  return null
+}
+
+function _parseQuery(query, isNot, useRegExp) {
+  const kv = query.split(':', 2)
+  if (kv.length === 2) {
+    const [key, value] = kv
+    const attrMatcher = getQueryAttrMatcher(key, value, isNot, useRegExp)
+    if (attrMatcher) {
+      return attrMatcher
+    }
+    const matcher = QUERY_MATCHER[key]
+    if (matcher) {
+      return matcher
+    }
+  }
+  if (useRegExp) {
+    const pattern = new RegExp(query, 'i')
+    return isNot
+      ? item => !item.title.match(pattern) && !item.url.match(pattern)
+      : item => item.title.match(pattern) || item.url.match(pattern)
+  } else {
+    return isNot
+      ? item => !item.title.includes(query) && !item.url.includes(query)
+      : item => item.title.includes(query) || item.url.includes(query)
+  }
+}
+
+/**
+ * 分割された個別のクエリを変換し、否定検索などに対応した一致関数を返します。
+ */
+function parseQuery(query, useRegExp) {
+  const isNot = query.startsWith('-') && query.length > 1
+  if (isNot) {
+    query = query.substr(1)
+  }
+  return _parseQuery(query, isNot, useRegExp)
+}
+
 /**
  * 検索クエリを変換し、一致するブックマークのリストを返します。
  * クエリは空白文字で分割され、AND/OR検索にかけられます。
@@ -85,11 +136,13 @@ function flatBookmarksTree(tree, size) {
  * @param andOr - AND/ORの指定(デフォルトでAND検索)
  * @return 一致するブックマークのリスト
  */
-function findBookmarks(query, andOr) {
+function findBookmarks(query, andOr, useRegExp) {
   if (!query || query.length === 0) {
     return []
   }
-  const queries = query.split(/[　 ㅤ]+/g).filter(q => q.length > 0)
+  const queries = query.split(/[　 ㅤ]+/g)
+    .filter(q => q.length > 0)
+    .map(q => parseQuery(q, useRegExp))
   if (queries.length === 0) {
     return []
   }
@@ -97,9 +150,7 @@ function findBookmarks(query, andOr) {
     ? queries.some.bind(queries)
     : queries.every.bind(queries)
   return bookmarks.filter(bkm => {
-    return condAndOr(q => {
-      return bkm.title.includes(q) || bkm.url.includes(q)
-    })
+    return condAndOr(query => query(bkm))
   })
 }
 
