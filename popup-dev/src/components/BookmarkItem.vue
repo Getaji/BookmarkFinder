@@ -24,7 +24,7 @@ export default {
   methods: {
     onClickLink(ev) {
       this.$emit('openurl', {
-        url: item.url,
+        url: this.item.url,
         newTab: ev.ctrlKey,
         active: !ev.shiftKey,
       })
