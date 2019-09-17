@@ -46,6 +46,9 @@
 <script>
 import BookmarkItem from './components/BookmarkItem.vue'
 
+/**
+ * Chromeのブックマークツリーのノードを扱いやすい形式に変換します。
+ */
 function parseBookmarkNode(node) {
   return {
     id: node.id,
@@ -55,6 +58,9 @@ function parseBookmarkNode(node) {
   }
 }
 
+/**
+ * Chromeのブックマークツリーを1つのリストにします。
+ */
 function flatBookmarksTree(tree, size) {
   const list = []
   function add(node) {
@@ -72,6 +78,13 @@ function flatBookmarksTree(tree, size) {
   return list
 }
 
+/**
+ * 検索クエリを変換し、一致するブックマークのリストを返します。
+ * クエリは空白文字で分割され、AND/OR検索にかけられます。
+ * @param query - クエリ
+ * @param andOr - AND/ORの指定(デフォルトでAND検索)
+ * @return 一致するブックマークのリスト
+ */
 function findBookmarks(query, andOr) {
   if (!query || query.length === 0) {
     return []
@@ -90,6 +103,12 @@ function findBookmarks(query, andOr) {
   })
 }
 
+/**
+ * URLを現在のタブか新しいタブで開きます。
+ * @param url - 開くURL
+ * @param newTab - 新しいタブで開くか(デフォルトで現在のタブ)
+ * @param active - 新しいタブをアクティブにするか(デフォルトでアクティブにする)
+ */
 function openURL(url, newTab, active) {
   if (newTab) {
     chrome.tabs.create({url, active}, _ => null)
@@ -127,14 +146,9 @@ export default {
       if (!q) {
         q = this.searchQuery
       }
-      if (q.length === 0) {
-        this.bookmarks = []
-        this.state = 'empty'
-        return
-      }
       this.selectedBookmarkIndex = -1
       this.bookmarks = findBookmarks(q, this.selectSearchOrAnd)
-      this.state = 'result'
+      this.state = this.bookmarks.length > 0 ? 'result' : 'empty'
     },
     enterInputSearchQuery(ev) {
       if (this.selectedBookmarkIndex > -1) {
