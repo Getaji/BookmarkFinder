@@ -11,6 +11,22 @@
       @keydown.down="shiftSelectedItem(1, $event)"
       @change="selectedBookmarkIndex = -1"
     >
+    <div id="selectSearchOrAnd">
+      <input
+        type="radio"
+        id="selectSearchOrAnd-AND"
+        value="AND"
+        v-model="selectSearchOrAnd"
+      >
+      <label for="selectSearchOrAnd-AND">AND</label>
+      <input
+        type="radio"
+        id="selectSearchOrAnd-OR"
+        value="OR"
+        v-model="selectSearchOrAnd"
+      >
+      <label for="selectSearchOrAnd-OR">OR</label>
+    </div>
     <div id="bookmarkList">
       <BookmarkItem
         v-for="(item, i) in bookmarks"
@@ -56,7 +72,7 @@ function flatBookmarksTree(tree, size) {
   return list
 }
 
-function findBookmarks(query) {
+function findBookmarks(query, andOr) {
   if (!query || query.length === 0) {
     return []
   }
@@ -64,8 +80,11 @@ function findBookmarks(query) {
   if (queries.length === 0) {
     return []
   }
+  const condAndOr = andOr === 'OR'
+    ? queries.some.bind(queries)
+    : queries.every.bind(queries)
   return bookmarks.filter(bkm => {
-    return queries.every(q => {
+    return condAndOr(q => {
       return bkm.title.includes(q) || bkm.url.includes(q)
     })
   })
@@ -90,6 +109,7 @@ export default {
     return {
       bookmarks: [],
       searchQuery: '',
+      selectSearchOrAnd: 'AND',
       selectedBookmarkIndex: -1,
       state: 'ready',
     }
@@ -113,7 +133,7 @@ export default {
         return
       }
       this.selectedBookmarkIndex = -1
-      this.bookmarks = findBookmarks(q)
+      this.bookmarks = findBookmarks(q, this.selectSearchOrAnd)
       this.state = 'result'
     },
     enterInputSearchQuery(ev) {

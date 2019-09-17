@@ -22,9 +22,10 @@ You can also select items with Ctrl + arrow keys and open them with Enter. Openi
 # To Do
 - ブックマークを開いたらポップアップを閉じるなどの設定画面を追加する
 - オプションで履歴も検索できるようにする
-- AND/OR/NOT検索ができるようにする
+- NOT検索ができるようにする
 - フォルダ階層の表示・検索対象化
 - 検索対象の値を指定可能にする(例 url:twitter.com)
+- ブックマークレットを実行可能にする
 
 # For Developer
 めんどくさいので日本語で書いていいですか？　書きますね。
