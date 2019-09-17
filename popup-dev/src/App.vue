@@ -145,12 +145,39 @@ export default {
       state: 'ready',
     }
   },
+  watch: {
+    useRegExp(newValue) {
+      this.saveSyncStorage('searchUseRegExp', newValue)
+    },
+    selectSearchOrAnd(newValue) {
+      this.saveSyncStorage('searchOrAnd', newValue)
+    },
+  },
   mounted() {
+    chrome.storage.sync.get(['searchUseRegExp', 'searchOrAnd'], result => {
+      if (result.searchUseRegExp === undefined) {
+        this.useRegExp = false
+        this.saveSyncStorage('searchUseRegExp', false)
+      } else {
+        this.useRegExp = result.searchUseRegExp
+      }
+      if (result.searchOrAnd === undefined) {
+        this.selectSearchOrAnd = 'AND'
+        this.saveSyncStorage('searchOrAnd', 'AND')
+      } else {
+        this.selectSearchOrAnd = result.searchOrAnd
+      }
+    })
     this.loadBookmarks()
     this.$refs.inputSearchQuery.focus()
   },
   methods: {
     openURL,
+    saveSyncStorage(key, value, callback) {
+      chrome.storage.sync.set({[key]: value}, () => {
+        callback && callback()
+      })
+    },
     onKeyupInputSearchQuery() {
       //this.state
     },
