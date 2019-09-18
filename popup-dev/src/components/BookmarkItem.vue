@@ -2,9 +2,9 @@
   <a
     class="outer"
     :href="item.url"
-    @click="onClickLink($event)"
+    @click="onClickLink"
   >
-    <div class="bookmarkItem" :id="'bkm-' + item.id">
+    <div class="bookmarkItem">
       <span class="icon"><img :src="favicon"></span>
       <span class="title">{{ item.title }}</span>
     </div>
@@ -33,7 +33,6 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 a {
   text-decoration: none;
