@@ -60,12 +60,21 @@ import { parseQuery } from './queryparser'
 /**
  * Chromeのブックマークツリーのノードを扱いやすい形式に変換します。
  */
-function parseBookmarkNode(node) {
+function parseBookmarkNode(node, dirs) {
+  if (!dirs) {
+    dirs = []
+  }
+  const children = node.children
+    ? node.children.map(child => {
+      return parseBookmarkNode(child, [...dirs, node.title])
+    })
+    : null
   return {
     id: node.id,
     title: node.title,
     url: node.url,
-    children: node.children ? node.children.map(parseBookmarkNode) : null,
+    dirs: [...dirs],
+    children,
   }
 }
 
@@ -74,8 +83,6 @@ function parseBookmarkNode(node) {
  */
 function flatBookmarksTree(tree, size) {
   const list = []
-  function add(node) {
-  }
   function each(nodes) {
     nodes.forEach(node => {
       if (node.children) {
@@ -187,6 +194,7 @@ export default {
       }
       this.selectedBookmarkIndex = -1
       this.bookmarks = findBookmarks(q, this.selectSearchOrAnd, this.useRegExp)
+      console.log(this.bookmarks)
       this.state = this.bookmarks.length > 0 ? 'result' : 'empty'
     },
     enterInputSearchQuery(ev) {
@@ -198,7 +206,10 @@ export default {
     },
     loadBookmarks() {
       chrome.bookmarks.getTree(nodes => {
-        const parsedTree = nodes.map(parseBookmarkNode)
+        if (nodes.length === 1 && nodes[0].title === '' && nodes[0].children) {
+          nodes = nodes[0].children
+        }
+        const parsedTree = nodes.map(node => parseBookmarkNode(node, []))
         bookmarks = flatBookmarksTree(parsedTree)
       })
     },
