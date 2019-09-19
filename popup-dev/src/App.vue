@@ -73,7 +73,7 @@ function parseBookmarkNode(node, dirs) {
     id: node.id,
     title: node.title,
     url: node.url,
-    dirs: [...dirs],
+    dirs,
     children,
   }
 }
