@@ -1,36 +1,35 @@
 Chrome Extension: Bookmark Finder
 ========================
 
-# About
-Bookmark Finderはブックマークを検索するシンプルな拡張機能です。  
-Bookmark Finder is a simple extension that searches bookmarks.
+# 概要
+Bookmark Finderはブックマークを検索するシンプルな拡張機能です。
 
-# Install
-Chromeの拡張機能ページを開き、srcフォルダをドラッグ＆ドロップしてください。  
-Open the Chrome extension page and drag and drop the src folder.
+# インストール
+`Clone or download`などからリポジトリをローカルにダウンロードし、Chromeの拡張機能ページを開き、srcフォルダをドラッグ＆ドロップしてください。
 
-# Usage
-アイコンをクリックすると検索ボックスが開くので、検索ワードを入力してEnterを押してください。タイトルとURLを対象に検索した結果が表示されます。  
-Click the icon to open the search box. Enter the search word and press Enter. Search results for title and URL are displayed.
+# 使い方
+アイコンをクリックすると検索ボックスが開くので、検索ワードを入力してEnterを押してください。タイトルとURLを対象に検索した結果が表示されます。検索ワードには特殊な書式を使うことができます、利用可能な書式は以下の通りです。
 
-クリックすると現在のタブで開きます。Ctrlキーを押しながらクリックすると新しいタブで開きます。Ctrl + Shiftキーを押しながらクリックすると非アクティブな新しいタブで開きます。  
-Click to open in current tab. Clicking while holding down the Ctrl key opens in a new tab. Ctrl + Shift-click to open in a new inactive tab.
+|書式|機能|
+|----|----|
+|title:タイトル|ブックマークのタイトルを検索します。|
+|url:URL|ブックマークのURLを検索します。|
+|dir:ディレクトリ|フォルダ構造を検索します。`/`でフォルダ階層を区切ります。先頭に`/`があると先頭に一致するか検索し、末尾に`/`があると末尾に一致するか検索し、両方にあると完全に一致するか検索します。|
 
-Ctrl + 矢印キーで項目を選択し、Enterで開くこともできます。新しいタブで開く動作もクリックと同様です。  
-You can also select items with Ctrl + arrow keys and open them with Enter. Opening in a new tab is similar to clicking.
+検索結果をクリックするとポップアップを維持しつつ現在のタブで開きます。Ctrlキーを押しながらクリックするとポップアップを閉じて新しいタブで開きます。Ctrl + Shiftキーを押しながらクリックするとポップアップを維持しつつ非アクティブな新しいタブで開きます。
+
+Ctrl + 矢印キーで項目を選択し、Enterで開くこともできます。新しいタブで開く動作もクリックと同様です。
 
 # To Do
 - ブックマークを開いたらポップアップを閉じるなどの設定画面を追加する
 - オプションで履歴も検索できるようにする
-- フォルダ階層の表示・検索対象化
+- フォルダ階層の表示
 - ブックマークレットを実行可能にする
 
-# For Developer
-めんどくさいので日本語で書いていいですか？　書きますね。
-
-改造したい人向け。ポップアップはpopup-devフォルダをルートとしてvue-cliで開発しています。変更したら`npm run build`するとコンパイルされたものが`プロジェクトルート/src/popup`に吐き出されます。v0.2.0からはバージョンアップしたタイミングでビルドしたものをコミットするようにしました。
+# 開発者向け
+ポップアップはpopup-devフォルダをルートとしてvue-cliで開発しています。変更したら`npm run build`するとコンパイルされたものが`プロジェクトルート/src/popup`に吐き出されます。v0.2.0からはバージョンアップしたタイミングでビルドしたものをコミットするようにしました。
 
 Pull Requestは消極的に受け付けています。ライセンスを守っていただければ先に書いたとおり改造は自由ですが、もしかしたら取り込むかもしれません。
 
-# License
+# ライセンス
 <a rel="license" href="http://creativecommons.org/licenses/by/3.0/"><img alt="クリエイティブ・コモンズ・ライセンス" style="border-width:0" src="https://i.creativecommons.org/l/by/3.0/88x31.png" /></a><br />この 作品 は <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">クリエイティブ・コモンズ 表示 3.0 非移植 ライセンス</a>の下に提供されています。
