@@ -110,6 +110,7 @@ function findBookmarks(query, andOr, useRegExp) {
   const queries = query.split(/[　 ㅤ]+/g)
     .filter(q => q.length > 0)
     .map(q => parseQuery(q, useRegExp))
+    .filter(q => q !== null)
   if (queries.length === 0) {
     return []
   }
