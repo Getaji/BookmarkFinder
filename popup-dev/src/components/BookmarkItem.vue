@@ -23,11 +23,13 @@ export default {
   },
   methods: {
     onClickLink(ev) {
+      ev.preventDefault()
       this.$emit('openurl', {
         url: this.item.url,
         newTab: ev.ctrlKey,
         active: !ev.shiftKey,
       })
+      return false
     }
   },
 }
