@@ -56,6 +56,7 @@
 <script>
 import BookmarkItem from './components/BookmarkItem.vue'
 import { parseQuery } from './queryparser'
+import asynchrome from './asynchrome'
 
 /**
  * Chromeのブックマークツリーのノードを扱いやすい形式に変換します。
@@ -128,11 +129,11 @@ function findBookmarks(query, andOr, useRegExp) {
  * @param newTab - 新しいタブで開くか(デフォルトで現在のタブ)
  * @param active - 新しいタブをアクティブにするか(デフォルトでアクティブにする)
  */
-function openURL(url, newTab, active) {
+async function openURL(url, newTab, active) {
   if (newTab) {
-    chrome.tabs.create({url, active}, _ => null)
+    return await asynchrome.tabs.create({url, active})
   } else {
-    chrome.tabs.update(null, {url}, _ => null)
+    return await asynchrome.tabs.update(null, {url})
   }
 }
 
@@ -161,30 +162,27 @@ export default {
       this.saveSyncStorage('searchOrAnd', newValue)
     },
   },
-  mounted() {
-    chrome.storage.sync.get(['searchUseRegExp', 'searchOrAnd'], result => {
-      if (result.searchUseRegExp === undefined) {
-        this.useRegExp = false
-        this.saveSyncStorage('searchUseRegExp', false)
-      } else {
-        this.useRegExp = result.searchUseRegExp
-      }
-      if (result.searchOrAnd === undefined) {
-        this.selectSearchOrAnd = 'AND'
-        this.saveSyncStorage('searchOrAnd', 'AND')
-      } else {
-        this.selectSearchOrAnd = result.searchOrAnd
-      }
-    })
+  async mounted() {
+    const result = await asynchrome.storage.sync.get(['searchUseRegExp', 'searchOrAnd'])
+    if (result.searchUseRegExp === undefined) {
+      this.useRegExp = false
+      this.saveSyncStorage('searchUseRegExp', false)
+    } else {
+      this.useRegExp = result.searchUseRegExp
+    }
+    if (result.searchOrAnd === undefined) {
+      this.selectSearchOrAnd = 'AND'
+      this.saveSyncStorage('searchOrAnd', 'AND')
+    } else {
+      this.selectSearchOrAnd = result.searchOrAnd
+    }
     this.loadBookmarks()
     this.$refs.inputSearchQuery.focus()
   },
   methods: {
     openURL,
-    saveSyncStorage(key, value, callback) {
-      chrome.storage.sync.set({[key]: value}, () => {
-        callback && callback()
-      })
+    async saveSyncStorage(key, value) {
+      return await asynchrome.storage.sync.set({[key]: value})
     },
     onKeyupInputSearchQuery() {
       //this.state
@@ -205,14 +203,13 @@ export default {
       }
       this.find()
     },
-    loadBookmarks() {
-      chrome.bookmarks.getTree(nodes => {
-        if (nodes.length === 1 && nodes[0].title === '' && nodes[0].children) {
-          nodes = nodes[0].children
-        }
-        const parsedTree = nodes.map(node => parseBookmarkNode(node, []))
-        bookmarks = flatBookmarksTree(parsedTree)
-      })
+    async loadBookmarks() {
+      const nodes = await asynchrome.bookmarks.getTree()
+      if (nodes.length === 1 && nodes[0].title === '' && nodes[0].children) {
+        nodes = nodes[0].children
+      }
+      const parsedTree = nodes.map(node => parseBookmarkNode(node, []))
+      bookmarks = flatBookmarksTree(parsedTree)
     },
     shiftSelectedItem(value, ev) {
       if (!ev.ctrlKey) {
