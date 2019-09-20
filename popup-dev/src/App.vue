@@ -204,7 +204,7 @@ export default {
       this.find()
     },
     async loadBookmarks() {
-      const nodes = await asynchrome.bookmarks.getTree()
+      let nodes = await asynchrome.bookmarks.getTree()
       if (nodes.length === 1 && nodes[0].title === '' && nodes[0].children) {
         nodes = nodes[0].children
       }
