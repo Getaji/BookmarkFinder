@@ -5,6 +5,13 @@ import {
   endArrayWith
 } from './util'
 
+/**
+ * 検索クエリ dir:ディレクトリ のための一致関数を返します。
+ * @param query - クエリ値
+ * @param isNot - 否定フラグ
+ * @param useRegExp - 正規表現フラグ
+ * @return 一致関数
+ */
 function directoryQueryMatcher(query, isNot, useRegExp) {
   let qdirs = query.split('/')
   const fowardMatch = query.startsWith('/')
@@ -50,6 +57,7 @@ const BOOKMARK_ATTRIBUTES = ['title', 'url']
 
 /**
  * ブックマークの属性参照を用いた一致関数を生成して返します。
+ * 存在しない場合はnullを返します。
  * @param attr - 属性名
  * @param value - 一致させる値
  * @param isNot - 否定フラグ
@@ -67,6 +75,16 @@ function getQueryAttrMatcher(attr, value, isNot, useRegExp) {
   return null
 }
 
+/**
+ * key:value形式のクエリの一致関数を返します。
+ * QUERY_MATCHERを参照し、その構造によっては引数の各種フラグを考慮した別々の関数が返されます。
+ * 存在しない場合はnullを返します。
+ * @param key - キー
+ * @param value - 値
+ * @param isNot - 否定フラグ
+ * @param useRegExp - 正規表現フラグ
+ * @return 一致関数
+ */
 function getQueryMatcher(key, value, isNot, useRegExp) {
   const matchers = QUERY_MATCHER[key]
   if (!Array.isArray(matchers)) {
