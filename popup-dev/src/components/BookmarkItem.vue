@@ -1,11 +1,7 @@
 <template>
-  <a
-    class="outer"
-    :href="item.url"
-    @click="onClickLink"
-  >
+  <a class="outer" :href="item.url" @click="onClickLink">
     <div class="bookmarkItem">
-      <span class="icon"><img :src="favicon"></span>
+      <span class="icon"><img :src="favicon"/></span>
       <span class="title">{{ item.title }}</span>
     </div>
   </a>
@@ -15,11 +11,15 @@
 export default {
   name: 'BookmarkItem',
   props: {
-    item: null,
-    required: true
+    item: {
+      type: null,
+      required: true,
+    },
   },
   computed: {
-    favicon() { return 'chrome://favicon/' + this.item.url }
+    favicon() {
+      return 'chrome://favicon/' + this.item.url
+    },
   },
   methods: {
     onClickLink(ev) {
@@ -30,7 +30,7 @@ export default {
         active: !ev.shiftKey,
       })
       return false
-    }
+    },
   },
 }
 </script>
@@ -49,6 +49,6 @@ a {
 }
 
 .outer.selected .bookmarkItem {
-  background-color: #DDD;
+  background-color: #ddd;
 }
 </style>

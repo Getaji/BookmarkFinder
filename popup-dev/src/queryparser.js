@@ -1,9 +1,4 @@
-import {
-  equalArray,
-  includeArray,
-  startArrayWith,
-  endArrayWith
-} from './util'
+import {equalArray, includeArray, startArrayWith, endArrayWith} from './util'
 
 /**
  * 検索クエリ dir:ディレクトリ のための一致関数を返します。
@@ -49,7 +44,7 @@ function directoryQueryMatcher(query, isNot, useRegExp) {
  * 値が長さ4の配列の場合は[正規表現あり, 正規表現あり否定, 正規表現なし, 正規表現なし否定]とします。
  */
 const QUERY_MATCHER = {
-  dir: directoryQueryMatcher
+  dir: directoryQueryMatcher,
 }
 
 /** ブックマークの属性参照の対象とする属性の文字列のリストです。 */
@@ -96,9 +91,7 @@ function getQueryMatcher(key, value, isNot, useRegExp) {
   } else if (matchers.length === 2) {
     index = useRegExp ? 0 : 1
   } else if (matchers.length === 4) {
-    index = useRegExp
-      ? (isNot ? 1 : 0)
-      : (isNot ? 3 : 2)
+    index = useRegExp ? (isNot ? 1 : 0) : isNot ? 3 : 2
   }
   return matchers[index](value, isNot, useRegExp)
 }
