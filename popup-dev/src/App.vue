@@ -5,7 +5,6 @@
       ref="inputSearchQuery"
       v-model="searchQuery"
       placeholder="入力してEnterで検索"
-      @keyup="onKeyupInputSearchQuery"
       @keyup.enter="enterInputSearchQuery"
       @keydown.up="shiftSelectedItem(-1, $event)"
       @keydown.down="shiftSelectedItem(1, $event)"
@@ -47,8 +46,12 @@
       />
       <div
         id="bookmarkListNotice"
-        v-if="bookmarks.length === 0 && state !== 'ready'"
-      >一致するブックマークはありません</div>
+      >
+        <span v-if="state === 'loading'"
+        >ブックマークを読み込んでいます…</span>
+        <span v-else-if="bookmarks.length === 0 && state !== 'ready'"
+        >一致するブックマークはありません</span>
+      </div>
     </div>
   </div>
 </template>
@@ -124,6 +127,19 @@ function findBookmarks(query, andOr, useRegExp) {
 }
 
 /**
+ * Chromeのブックマークを読み込んでBookmark Finderで扱う形式に変換します。
+ */
+async function loadBookmarks() {
+  let nodes = await asynchrome.bookmarks.getTree()
+  if (nodes.length === 1 && nodes[0].title === '' && nodes[0].children) {
+    nodes = nodes[0].children
+  }
+  const parsedTree = nodes.map(node => parseBookmarkNode(node, []))
+  bookmarks = flatBookmarksTree(parsedTree)
+  return bookmarks
+}
+
+/**
  * URLを現在のタブか新しいタブで開きます。
  * @param url - 開くURL
  * @param newTab - 新しいタブで開くか(デフォルトで現在のタブ)
@@ -151,7 +167,7 @@ export default {
       selectSearchOrAnd: 'AND',
       useRegExp: false,
       selectedBookmarkIndex: -1,
-      state: 'ready',
+      state: 'loading',
     }
   },
   watch: {
@@ -176,16 +192,14 @@ export default {
     } else {
       this.selectSearchOrAnd = result.searchOrAnd
     }
-    this.loadBookmarks()
+    await loadBookmarks()
+    this.state = 'ready'
     this.$refs.inputSearchQuery.focus()
   },
   methods: {
     openURL,
     async saveSyncStorage(key, value) {
       return await asynchrome.storage.sync.set({[key]: value})
-    },
-    onKeyupInputSearchQuery() {
-      //this.state
     },
     find(q) {
       if (!q) {
@@ -202,14 +216,6 @@ export default {
         return
       }
       this.find()
-    },
-    async loadBookmarks() {
-      let nodes = await asynchrome.bookmarks.getTree()
-      if (nodes.length === 1 && nodes[0].title === '' && nodes[0].children) {
-        nodes = nodes[0].children
-      }
-      const parsedTree = nodes.map(node => parseBookmarkNode(node, []))
-      bookmarks = flatBookmarksTree(parsedTree)
     },
     shiftSelectedItem(value, ev) {
       if (!ev.ctrlKey) {
