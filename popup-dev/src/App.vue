@@ -10,33 +10,61 @@
       @keydown.down="shiftSelectedItem(1, $event)"
       @change="selectedBookmarkIndex = -1"
     />
-    <div id="searchOptions">
-      <div id="selectSearchOrAnd">
-        <input
-          type="radio"
-          id="selectSearchOrAnd-AND"
-          value="AND"
-          v-model="selectSearchOrAnd"
-        />
-        <label for="selectSearchOrAnd-AND">AND</label>
-        <input
-          type="radio"
-          id="selectSearchOrAnd-OR"
-          value="OR"
-          v-model="selectSearchOrAnd"
-        />
-        <label for="selectSearchOrAnd-OR">OR</label>
+    <div id="options">
+      <div id="searchOptions">
+        <div id="selectSearchOrAnd">
+          <input
+            type="radio"
+            id="selectSearchOrAnd-AND"
+            value="AND"
+            v-model="selectSearchOrAnd"
+          />
+          <label for="selectSearchOrAnd-AND">AND</label>
+          <input
+            type="radio"
+            id="selectSearchOrAnd-OR"
+            value="OR"
+            v-model="selectSearchOrAnd"
+          />
+          <label for="selectSearchOrAnd-OR">OR</label>
+        </div>
+        <div>
+          <input
+            type="checkbox"
+            id="checkboxUseRegExpSearch"
+            v-model="useRegExp"
+          />
+          <label for="checkboxUseRegExpSearch">正規表現</label>
+        </div>
       </div>
-      <div>
-        <input
-          type="checkbox"
-          id="checkboxUseRegExpSearch"
-          v-model="useRegExp"
-        />
-        <label for="checkboxUseRegExpSearch">正規表現を使用</label>
+      <div id="ctrlOptions">
+        <!--div id="globalMenuOpener" @click="openGlobalMenu">
+          <img src="./assets/menu-open.png">
+        </div-->
+        <div
+          id="bkmTitleReplacerOpener"
+          @click="showBkmTitleReplacer ^= true"
+        >
+          <img src="./assets/find-replace.png">
+        </div>
       </div>
     </div>
-    <div id="bookmarkList">
+    <div id="bkmTitleReplacer" v-show="showBkmTitleReplacer">
+      <input
+        class="pattern"
+        placeholder="置換される文字列"
+        v-model="bkmTitleReplacerPattern"
+      >
+      <input
+        class="replacement"
+        placeholder="置換する文字列"
+        v-model="bkmTitleReplacerReplacement"
+      >
+      <button @click="replaceBkmTitle()" :disabled="invalidateReplacer"
+        >置換</button
+      >
+    </div>
+    <div id="bookmarkList" :class="{ empty: bookmarksEmpty }">
       <BookmarkItem
         v-for="(item, i) in bookmarks"
         :key="item.id"
@@ -46,83 +74,27 @@
       />
       <div id="bookmarkListNotice">
         <span v-if="state === 'loading'">ブックマークを読み込んでいます…</span>
-        <span v-else-if="bookmarks.length === 0 && state !== 'ready'"
+        <span v-else-if="bookmarksEmpty && state !== 'ready'"
           >一致するブックマークはありません</span
         >
       </div>
     </div>
+    <!--vue-context ref="globalMenu">
+      <li>
+        <a href="#" @click.prevent="showBkmTitleReplacer ^= true">
+          表示中のブックマークタイトルを一括置換
+        </a>
+      </li>
+    </vue-context-->
   </div>
 </template>
 
 <script>
+// import {VueContext} from 'vue-context'
 import BookmarkItem from './components/BookmarkItem.vue'
-import {parseQuery} from './queryparser'
+import {parseBookmarkNode, flatBookmarksTree, findBookmarks} from './bookmarks'
+import {Locker, exclusive} from './exclusive'
 import asynchrome from './asynchrome'
-
-/**
- * Chromeのブックマークツリーのノードを扱いやすい形式に変換します。
- */
-function parseBookmarkNode(node, dirs) {
-  if (!dirs) {
-    dirs = []
-  }
-  const children = node.children
-    ? node.children.map(child => {
-        return parseBookmarkNode(child, [...dirs, node.title])
-      })
-    : null
-  return {
-    id: node.id,
-    title: node.title,
-    url: node.url,
-    dirs,
-    children,
-  }
-}
-
-/**
- * Chromeのブックマークツリーを1つのリストにします。
- */
-function flatBookmarksTree(tree, size) {
-  const list = []
-  function each(nodes) {
-    nodes.forEach(node => {
-      if (node.children) {
-        each(node.children)
-      } else {
-        list.push(node)
-      }
-    })
-  }
-  each(tree)
-  return list
-}
-
-/**
- * 検索クエリを変換し、一致するブックマークのリストを返します。
- * クエリは空白文字で分割され、AND/OR検索にかけられます。
- * @param query - クエリ
- * @param andOr - AND/ORの指定(デフォルトでAND検索)
- * @return 一致するブックマークのリスト
- */
-function findBookmarks(query, andOr, useRegExp) {
-  if (!query || query.length === 0) {
-    return []
-  }
-  const queries = query
-    .split(/[　 ㅤ]+/g)
-    .filter(q => q.length > 0)
-    .map(q => parseQuery(q, useRegExp))
-    .filter(q => q !== null)
-  if (queries.length === 0) {
-    return []
-  }
-  const condAndOr =
-    andOr === 'OR' ? queries.some.bind(queries) : queries.every.bind(queries)
-  return bookmarks.filter(bkm => {
-    return condAndOr(query => query(bkm))
-  })
-}
 
 /**
  * Chromeのブックマークを読み込んでBookmark Finderで扱う形式に変換します。
@@ -153,10 +125,13 @@ async function openURL(url, newTab, active) {
 
 let bookmarks = []
 
+const lockerReplaceBkmTitle = new Locker()
+
 export default {
   name: 'app',
   components: {
     BookmarkItem,
+//     VueContext,
   },
   data() {
     return {
@@ -166,7 +141,19 @@ export default {
       useRegExp: false,
       selectedBookmarkIndex: -1,
       state: 'loading',
+      showBkmTitleReplacer: false,
+      bkmTitleReplacerPattern: '',
+      bkmTitleReplacerReplacement: '',
+      isReplacing: false,
     }
+  },
+  computed: {
+    bookmarksEmpty() {
+      return this.bookmarks.length === 0
+    },
+    invalidateReplacer() {
+      return this.bkmTitleReplacerPattern === ''
+    },
   },
   watch: {
     useRegExp(newValue) {
@@ -181,18 +168,16 @@ export default {
       'searchUseRegExp',
       'searchOrAnd',
     ])
-    if (result.searchUseRegExp === undefined) {
-      this.useRegExp = false
-      this.saveSyncStorage('searchUseRegExp', false)
-    } else {
-      this.useRegExp = result.searchUseRegExp
+    const load = (key, defaultValue, vueKey) => {
+      if (result[key] === undefined) {
+        this[vueKey] = defaultValue
+        this.saveSyncStorage(key, defaultValue)
+      } else {
+        this[vueKey] = result[key]
+      }
     }
-    if (result.searchOrAnd === undefined) {
-      this.selectSearchOrAnd = 'AND'
-      this.saveSyncStorage('searchOrAnd', 'AND')
-    } else {
-      this.selectSearchOrAnd = result.searchOrAnd
-    }
+    load('searchUseRegExp', false, 'useRegExp')
+    load('searchOrAnd', 'AND', 'selectSearchOrAnd')
     await loadBookmarks()
     this.state = 'ready'
     this.$refs.inputSearchQuery.focus()
@@ -207,20 +192,54 @@ export default {
         q = this.searchQuery
       }
       this.selectedBookmarkIndex = -1
-      this.bookmarks = findBookmarks(q, this.selectSearchOrAnd, this.useRegExp)
+      this.bookmarks = findBookmarks(
+        bookmarks, q, this.selectSearchOrAnd, this.useRegExp
+      )
       console.log(this.bookmarks)
-      this.state = this.bookmarks.length > 0 ? 'result' : 'empty'
+      this.state = this.bookmarksEmpty ? 'empty' : 'result'
     },
     enterInputSearchQuery(ev) {
       if (this.selectedBookmarkIndex > -1) {
         openURL(
           this.bookmarks[this.selectedBookmarkIndex].url,
-          ev.ctrlKey,
-          !ev.shiftKey
+          ev.ctrlKey, // newTab
+          !ev.shiftKey // activate
         )
         return
       }
       this.find()
+    },
+    openGlobalMenu(ev) {
+      this.$refs.globalMenu.open(ev)
+    },
+    async replaceBkmTitle(pattern, replacement) {
+      if (this.bookmarksEmpty || pattern === '') {
+        return
+      }
+      if (!confirm('本当に表示中のブックマークの名前を置換しますか？')) {
+        return
+      }
+      exclusive(lockerReplaceBkmTitle, () => {
+        if (!pattern) pattern = this.bkmTitleReplacerPattern
+        if (!replacement) replacement = this.bkmTitleReplacerReplacement
+        return this.bookmarks.map((bookmark, i) => {
+          return new Promise((resolve, reject) => {
+            const replaced = bookmark.title.replace(pattern, replacement)
+            if (replaced !== bookmark.title) {
+              chrome.bookmarks.update(
+                bookmark.id,
+                {title: replaced},
+                result => {
+                  bookmark.title = replaced
+                  resolve(true)
+                }
+              )
+            } else {
+              resolve(false)
+            }
+          })
+        })
+      }, [], {waitAll: true})
     },
     shiftSelectedItem(value, ev) {
       if (!ev.ctrlKey) {
@@ -251,6 +270,11 @@ body {
   width: 400px;
 }
 
+label {
+  position: relative;
+  top: -2px;
+}
+
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -263,12 +287,35 @@ body {
   margin-bottom: 4px;
 }
 
+#options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 #searchOptions {
   display: flex;
 }
 
 #searchOptions > * {
   margin-right: 5px;
+}
+
+#globalMenuOpener img {
+  margin: -4px 0;
+}
+
+#bkmTitleReplacer {
+  display: flex;
+  margin-bottom: 4px;
+}
+
+#bkmTitleReplacer input {
+  flex: 1;
+}
+
+#bookmarkList:not(.empty) {
+  border-top: 1px solid #DDD;
 }
 
 #bookmarkListNotice {

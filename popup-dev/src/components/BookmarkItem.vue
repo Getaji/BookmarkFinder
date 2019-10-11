@@ -1,10 +1,14 @@
 <template>
-  <a class="outer" :href="item.url" @click="onClickLink">
-    <div class="bookmarkItem">
-      <span class="icon"><img :src="favicon"/></span>
-      <span class="title">{{ item.title }}</span>
+  <div class="bookmarkItem" @click="onClickItem">
+    <span class="icon"><img :src="favicon"/></span>
+    <span class="title">{{ item.title }}</span>
+    <div class="menuOpener">
+      <img src="../assets/dots-vertical.png">
     </div>
-  </a>
+  </div>
+  <div v-if="showingMenu">
+    <button></button>
+  </div>
 </template>
 
 <script>
@@ -14,6 +18,7 @@ export default {
     item: {
       type: null,
       required: true,
+      showingMenu: false,
     },
   },
   computed: {
@@ -22,8 +27,10 @@ export default {
     },
   },
   methods: {
-    onClickLink(ev) {
-      ev.preventDefault()
+    onClickItem(ev) {
+      if (ev.target.classList.contains('menuOpener')) {
+        return
+      }
       this.$emit('openurl', {
         url: this.item.url,
         newTab: ev.ctrlKey,
@@ -36,19 +43,24 @@ export default {
 </script>
 
 <style scoped>
-a {
-  text-decoration: none;
-}
-
 .bookmarkItem {
   margin: 4px 0;
+  display: flex;
 }
 
 .icon {
   margin-right: 2px;
 }
 
-.outer.selected .bookmarkItem {
+.bookmarkItem.selected {
   background-color: #ddd;
+}
+
+.title {
+  flex: 1;
+}
+
+.menuOpener img {
+  width: 18px;
 }
 </style>
